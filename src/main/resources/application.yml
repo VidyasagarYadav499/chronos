@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: Chronos
+
+  data:
+    mongodb:
+          host: localhost
+          port: ${SERVER_PORT}
+    #      username:
+    #      password:
+          database: journaldb
