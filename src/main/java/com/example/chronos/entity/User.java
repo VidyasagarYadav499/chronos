@@ -28,4 +28,5 @@ public class User {
     @DBRef // Like a Foreign key, that references an entry in another collection(journal_entries).
     private List<JournalEntry> userJournalEntries = new ArrayList<>();
 
+    private List<String> roles;
 }
