@@ -7,8 +7,8 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -32,7 +32,7 @@ public class JournalEntryService {
             entry.setDate(LocalDateTime.now());
             JournalEntry savedEntry = journalEntryRepository.save(entry);
             user.getUserJournalEntries().add(savedEntry);
-            userService.saveEntry(user);
+            userService.saveUser(user);
         } catch (Exception e) {
             System.out.println("Exception : " + e);
             throw new RuntimeException("An error occurred while saving a journal entry ", e);
@@ -51,11 +51,24 @@ public class JournalEntryService {
         return journalEntryRepository.findById(myId);
     }
 
-    public void deleteById(ObjectId myId, String userName) {
-        User user = userService.findByUserName(userName);
-        user.getUserJournalEntries().removeIf(x -> x.getId().equals(myId));
-        userService.saveEntry(user);
-        journalEntryRepository.deleteById(myId);
+    @Transactional
+    public boolean deleteById(ObjectId myId, String userName) {
+
+        boolean removed = false;
+
+        try {
+            User user = userService.findByUserName(userName);
+            removed = user.getUserJournalEntries().removeIf(x -> x.getId().equals(myId));
+            if (removed) {
+                userService.saveUser(user);
+                journalEntryRepository.deleteById(myId);
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+            throw new RuntimeException("An error occurred while deleting an entry.", e);
+        }
+
+        return removed;
     }
 }
 
